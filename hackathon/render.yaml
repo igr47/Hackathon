@@ -17,7 +17,6 @@ services:
       - key: DB_NAME
         value: defaultdb
       - key: PYTHON_VERSION
-        value: 3.11.0services:
   - type: web
     name: carwash-backend
     runtime: python
