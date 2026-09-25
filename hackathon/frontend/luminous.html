@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Wash - Luminous System</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{--bg-dark:#050b07;--card-bg:rgba(10,25,16,0.85);--neon-green:#00ff66;--deep-green:#008033;--accent-lime:#a3ff00;--accent-gold:#ffcc00;--text-main:#e6ffe9;--text-muted:#6b9e78;--glass-border:rgba(0,255,102,0.25);--glow-shadow:0 0 15px rgba(0,255,102,0.35);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background-color:var(--bg-dark);color:var(--text-main);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;background-image:radial-gradient(circle at 10% 20%,rgba(0,255,102,0.08) 0%,transparent 40%),radial-gradient(circle at 90% 80%,rgba(163,255,0,0.06) 0%,transparent 40%);}
+  header{background:rgba(5,11,7,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--glass-border);padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--glow-shadow);}
+  .brand-logo{display:flex;align-items:center;gap:12px;font-family:'Orbitron',sans-serif;text-transform:uppercase;}
+  .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--neon-green),var(--deep-green));mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z'/%3E%3C/svg%3E") no-repeat center/contain;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z'/%3E%3C/svg%3E") no-repeat center/contain;filter:drop-shadow(0 0 8px var(--neon-green));}
+  .brand-title{font-size:1.4rem;letter-spacing:1px;background:linear-gradient(90deg,#fff,var(--neon-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .brand-subtitle{font-size:0.65rem;color:var(--neon-green);letter-spacing:3px;font-family:'Rajdhani',sans-serif;}
+  .container{max-width:1200px;margin:2rem auto;padding:0 1.5rem;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+  .panel{background:var(--card-bg);border:1px solid var(--glass-border);border-radius:12px;padding:2rem;display:flex;flex-direction:column;gap:1.2rem;box-shadow:0 0 20px rgba(0,255,102,0.05);}
+  .panel-title{font-family:'Rajdhani',sans-serif;font-size:1.3rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--neon-green);border-bottom:1px solid rgba(0,255,102,0.2);padding-bottom:0.5rem;}
+  .form-group{display:flex;flex-direction:column;gap:0.4rem;}
+  label{font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;}
+  input,select{background:rgba(2,15,7,0.8);border:1px solid var(--glass-border);color:var(--text-main);padding:0.8rem 1rem;border-radius:8px;font-size:1rem;outline:none;}
+  input:focus,select:focus{border-color:var(--neon-green);box-shadow:var(--glow-shadow);}
+  .star-rating{display:flex;gap:8px;font-size:1.8rem;cursor:pointer;color:rgba(0,255,102,0.2);}
+  .star-rating .star.active{color:var(--neon-green);text-shadow:0 0 10px var(--neon-green);}
+  .btn{background:linear-gradient(135deg,var(--neon-green),var(--deep-green));color:#000;border:none;padding:0.9rem 1.5rem;border-radius:8px;font-family:'Orbitron',sans-serif;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:1px;margin-top:0.5rem;box-shadow:0 0 15px rgba(0,255,102,0.4);}
+  .btn:hover{box-shadow:0 0 25px rgba(0,255,102,0.8);transform:translateY(-2px);}
+  .qr-card{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,20,8,0.6);border:1px dashed var(--neon-green);border-radius:12px;padding:1.5rem;}
+  #qrcode{background:#fff;padding:12px;border-radius:8px;margin:1.2rem 0;box-shadow:0 0 20px rgba(0,255,102,0.5);border:2px solid var(--neon-green);}
+  .modal-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(2,10,5,0.9);backdrop-filter:blur(10px);display:none;justify-content:center;align-items:center;z-index:1000;}
+  .receipt-modal{background:var(--card-bg);border:1px solid var(--neon-green);border-radius:12px;padding:2rem;width:90%;max-width:450px;box-shadow:0 0 35px rgba(0,255,102,0.4);}
+  .receipt-row{display:flex;justify-content:space-between;padding:0.7rem 0;border-bottom:1px rgba(0,255,102,0.1) solid;}
+  @media (max-width:768px){.container{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand-logo"><div class="logo-icon"></div><div>
+    <div class="brand-title">Car Wash</div><div class="brand-subtitle">AUTO DETAILING</div>
+  </div></div>
+</header>
+<div class="container">
+  <div class="panel">
+    <div class="panel-title">Digital Receipt & Rating System</div>
+    <div class="form-group"><label>Job Code</label><input type="text" id="jobCodeInput" placeholder="JOB-2026-0913-0001"></div>
+    <div class="form-group"><label>Vehicle Model</label><input type="text" id="vehicleInput" value="Dodge Challenger"></div>
+    <div class="form-group"><label>Service Selected</label>
+      <select id="serviceSelect"><option>Full Wash + Interior</option><option>Auto Detailing</option><option>Paint Care</option><option>Ceramic Protection</option></select>
+    </div>
+    <div class="form-group"><label>Amount Paid (KSh)</label><input type="number" id="amountInput" value="1500"></div>
+    <div class="form-group"><label>Customer Rating</label>
+      <div class="star-rating" id="starRating">
+        <span class="star active" data-value="1">★</span><span class="star active" data-value="2">★</span>
+        <span class="star active" data-value="3">★</span><span class="star active" data-value="4">★</span>
+        <span class="star active" data-value="5">★</span>
+      </div>
+    </div>
+    <button class="btn" onclick="generateQRCode()">Generate Customer QR</button>
+    <button class="btn" style="background:linear-gradient(135deg,#00ff66,#008033);" onclick="submitRating()">Submit Rating</button>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Scan & Track Portal</div>
+    <div class="qr-card">
+      <p style="color:var(--text-muted);font-size:0.85rem;">Scan or click the QR code to open the receipt.</p>
+      <div id="qrcode" onclick="openReceipt()" style="cursor:pointer;"></div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:0.95rem;color:var(--neon-green);" id="qrJobCodeDisplay">---</div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="receiptModal">
+  <div class="receipt-modal">
+    <div class="panel-title" style="text-align:center;">Digital Receipt</div>
+    <div style="margin:1.5rem 0;">
+      <div class="receipt-row"><span>Job Code:</span><span id="modalJobCode" style="font-weight:bold;color:var(--neon-green);"></span></div>
+      <div class="receipt-row"><span>Vehicle:</span><span id="modalVehicle"></span></div>
+      <div class="receipt-row"><span>Service:</span><span id="modalService"></span></div>
+      <div class="receipt-row"><span>Total Paid:</span><span id="modalAmount" style="color:var(--accent-lime);font-weight:bold;"></span></div>
+      <div class="receipt-row"><span>Customer Rating:</span><span id="modalRating" style="color:var(--neon-green);"></span></div>
+    </div>
+    <button class="btn" style="width:100%;" onclick="closeReceipt()">Close Receipt</button>
+  </div>
+</div>
+<script>
+const API = "";
+let selectedRating = 5;
+document.querySelectorAll('.star-rating .star').forEach(s => s.addEventListener('click', () => {
+  selectedRating = parseInt(s.getAttribute('data-value'));
+  document.querySelectorAll('.star-rating .star').forEach((el, i) => el.classList.toggle('active', i < selectedRating));
+}));
+function generateQRCode() {
+  const jc = document.getElementById('jobCodeInput').value.trim();
+  document.getElementById('qrJobCodeDisplay').innerText = jc;
+  const url = `${window.location.href.split('?')[0]}?job=${encodeURIComponent(jc)}&vehicle=${encodeURIComponent(document.getElementById('vehicleInput').value)}&service=${encodeURIComponent(document.getElementById('serviceSelect').value)}&amount=${encodeURIComponent(document.getElementById('amountInput').value)}&rating=${selectedRating}`;
+  const c = document.getElementById('qrcode'); c.innerHTML = '';
+  new QRCode(c, { text: url, width: 180, height: 180, colorDark: "#050b07", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+}
+function openReceipt() {
+  showReceipt(document.getElementById('jobCodeInput').value, document.getElementById('vehicleInput').value,
+    document.getElementById('serviceSelect').value, `KSh ${parseFloat(document.getElementById('amountInput').value).toLocaleString()}`, selectedRating);
+}
+function showReceipt(j, v, s, a, r) {
+  document.getElementById('modalJobCode').innerText = j;
+  document.getElementById('modalVehicle').innerText = v;
+  document.getElementById('modalService').innerText = s;
+  document.getElementById('modalAmount').innerText = a;
+  document.getElementById('modalRating').innerText = '★'.repeat(r) + '☆'.repeat(5 - r);
+  document.getElementById('receiptModal').style.display = 'flex';
+}
+function closeReceipt() { document.getElementById('receiptModal').style.display = 'none'; }
+async function submitRating() {
+  const jc = document.getElementById('jobCodeInput').value.trim();
+  if (!jc) return alert("Enter a job code");
+  const res = await fetch(`${API}/api/jobs/${jc}/rating`, { method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ rating: selectedRating })});
+  alert(res.ok ? `Rating ${selectedRating}★ submitted` : "Job not found");
+}
+window.addEventListener('DOMContentLoaded', () => {
+  generateQRCode();
+  const p = new URLSearchParams(window.location.search);
+  if (p.has('job')) showReceipt(p.get('job'), p.get('vehicle'), p.get('service'),
+    `KSh ${parseFloat(p.get('amount') || 0).toLocaleString()}`, parseInt(p.get('rating') || 5));
+});
+</script>
+</body>
+</html>

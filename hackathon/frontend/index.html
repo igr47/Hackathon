@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Wash & Auto Detailing - System Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b0e14;
+      --card-bg: rgba(18, 24, 38, 0.85);
+      --neon-blue: #00d2ff;
+      --deep-blue: #0066ff;
+      --accent-cyan: #00f2fe;
+      --accent-gold: #ffb703;
+      --text-main: #f0f4f8;
+      --text-muted: #8a99ad;
+      --glass-border: rgba(0, 210, 255, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(0, 210, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 102, 255, 0.08) 0%, transparent 40%);
+    }
+    header {
+      background: rgba(11, 14, 20, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .brand-logo { display: flex; align-items: center; gap: 12px; font-family: 'Orbitron', sans-serif; text-transform: uppercase; }
+    .logo-icon {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--neon-blue), var(--deep-blue));
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z'/%3E%3C/svg%3E") no-repeat center/contain;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z'/%3E%3C/svg%3E") no-repeat center/contain;
+    }
+    .brand-title { font-size: 1.4rem; letter-spacing: 1px; background: linear-gradient(90deg, #ffffff, var(--neon-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .brand-subtitle { font-size: 0.65rem; color: var(--neon-blue); letter-spacing: 3px; font-family: 'Rajdhani', sans-serif; }
+    .dashboard-container { display: grid; grid-template-columns: 240px 1fr 340px; gap: 1.5rem; padding: 2rem; flex-grow: 1; max-width: 1600px; margin: 0 auto; width: 100%; }
+    .services-sidebar, .bay-container, .status-panel, .variant-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 12px; }
+    .services-sidebar { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .sidebar-title { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; color: var(--neon-blue); margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .service-btn { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 0.8rem 1rem; border-radius: 8px; color: var(--text-main); cursor: pointer; transition: all 0.3s ease; font-weight: 500; }
+    .service-btn:hover, .service-btn.active { background: linear-gradient(90deg, rgba(0,210,255,0.15), transparent); border-color: var(--neon-blue); color: #fff; transform: translateX(4px); }
+    .service-icon { font-size: 1.2rem; }
+    .bay-container { position: relative; overflow: hidden; display: flex; flex-direction: column; }
+    .bay-header { padding: 1rem 1.5rem; background: rgba(0,0,0,0.4); display: flex; justify-content: space-between; align-items: center; font-family: 'Rajdhani', sans-serif; }
+    .bay-title { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
+    .bay-visual { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; background: radial-gradient(circle at center, rgba(0,210,255,0.05) 0%, transparent 70%); }
+    .vehicle-card { text-align: center; }
+    .vehicle-model { font-family: 'Orbitron', sans-serif; font-size: 2rem; margin-top: 1rem; color: #fff; text-shadow: 0 0 10px rgba(0,210,255,0.5); }
+    .vehicle-tag { display: inline-block; margin-top: 0.5rem; padding: 0.3rem 0.8rem; background: rgba(0,210,255,0.1); border: 1px solid var(--neon-blue); border-radius: 20px; color: var(--neon-blue); font-size: 0.85rem; }
+    .status-panel { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; }
+    .job-code-box { background: rgba(0,0,0,0.5); border: 1px dashed var(--neon-blue); padding: 0.8rem; border-radius: 8px; text-align: center; }
+    .job-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+    .job-value { font-family: 'Orbitron', sans-serif; color: var(--neon-blue); font-size: 1.1rem; margin-top: 0.2rem; }
+    .status-badge { display: flex; align-items: center; gap: 8px; font-weight: 600; color: #2ec4b6; background: rgba(46,196,182,0.1); padding: 0.5rem 0.8rem; border-radius: 6px; width: fit-content; }
+    .status-dot { width: 8px; height: 8px; background-color: #2ec4b6; border-radius: 50%; box-shadow: 0 0 8px #2ec4b6; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%{opacity:1;} 50%{opacity:0.3;} 100%{opacity:1;} }
+    .qr-container { margin-top: auto; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 1rem; text-align: center; }
+    .qr-placeholder { width: 120px; height: 120px; margin: 0.5rem auto; background: #fff; padding: 8px; border-radius: 4px; }
+    .branding-section { grid-column: 1 / -1; margin-top: 1rem; }
+    .section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem; color: var(--text-main); }
+    .logo-variants-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+    .variant-card { padding: 1.5rem; text-align: center; transition: transform 0.3s ease; }
+    .variant-card:hover { transform: translateY(-5px); border-color: var(--neon-blue); }
+    .variant-preview { height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+    .variant-name { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-family: 'Rajdhani', sans-serif; }
+    .logo-svg { max-width: 140px; height: auto; }
+    @media (max-width: 1024px) { .dashboard-container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-logo">
+      <div class="logo-icon"></div>
+      <div>
+        <div class="brand-title">Car Wash</div>
+        <div class="brand-subtitle">AUTO DETAILING</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:1rem;font-family:'Rajdhani',sans-serif;">
+      <a href="/app/pos.html" style="color:var(--neon-blue);text-decoration:none;">POS</a>
+      <a href="/app/venuebox.html" style="color:var(--neon-blue);text-decoration:none;">VenueBox</a>
+      <a href="/app/tracker.html" style="color:var(--neon-blue);text-decoration:none;">Tracker</a>
+      <a href="/app/customer.html" style="color:var(--neon-blue);text-decoration:none;">Customer</a>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="services-sidebar">
+      <div class="sidebar-title">Services</div>
+      <button class="service-btn active"><span class="service-icon">💧</span> Car Wash</button>
+      <button class="service-btn"><span class="service-icon">⚙️</span> Auto Detailing</button>
+      <button class="service-btn"><span class="service-icon">💺</span> Interior Cleaning</button>
+      <button class="service-btn"><span class="service-icon">✨</span> Paint Care</button>
+      <button class="service-btn"><span class="service-icon">🛡️</span> Ceramic Protection</button>
+    </aside>
+
+    <main class="bay-container">
+      <div class="bay-header">
+        <span class="bay-title">Bay #01 — Active Operation</span>
+        <span style="color:var(--neon-blue);">Live Monitoring</span>
+      </div>
+      <div class="bay-visual">
+        <div class="vehicle-card">
+          <div style="font-size:3rem;">🚘</div>
+          <div class="vehicle-model" id="bayVehicle">No vehicle in bay</div>
+          <div class="vehicle-tag" id="bayService">—</div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="status-panel">
+      <div class="sidebar-title">Job Details</div>
+      <div class="job-code-box">
+        <div class="job-label">Job Code</div>
+        <div class="job-value" id="bayJobCode">—</div>
+      </div>
+      <div>
+        <div class="job-label">Vehicle</div>
+        <div id="bayVehicleInfo" style="font-weight:600;font-size:1.1rem;margin-top:2px;">—</div>
+      </div>
+      <div>
+        <div class="job-label">Service Selected</div>
+        <div id="bayServiceInfo" style="font-weight:600;margin-top:2px;">—</div>
+      </div>
+      <div>
+        <div class="job-label">Status</div>
+        <div class="status-badge" style="margin-top:4px;">
+          <span class="status-dot"></span> <span id="bayStatus">Idle</span>
+        </div>
+      </div>
+      <div class="qr-container">
+        <div class="qr-placeholder">
+          <svg viewBox="0 0 100 100" fill="black">
+            <path d="M0 0h30v30H0zM10 10h10v10H10zM70 0h30v30H70zM80 10h10v10H80zM0 70h30v30H0zM10 80h10v10H10zM40 0h10v20H40zM50 20h20v10H50zM30 40h20v10H30zM60 40h10v30H60zM80 50h20v10H80zM40 70h20v10H40zM70 80h30v20H70z"/>
+          </svg>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Scan to track your vehicle</div>
+      </div>
+    </aside>
+
+    <section class="branding-section">
+      <div class="section-title">Branding Artwork Designs</div>
+      <div class="logo-variants-grid">
+        <div class="variant-card"><div class="variant-preview">
+          <svg class="logo-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#00d2ff" stroke-width="4"/>
+            <circle cx="100" cy="100" r="82" fill="none" stroke="#0066ff" stroke-width="2"/>
+            <path d="M100 40 Q110 65 110 80 A10 10 0 0 1 90 80 Q90 65 100 40" fill="#00d2ff"/>
+            <text x="100" y="125" text-anchor="middle" fill="#fff" font-family="Orbitron" font-weight="bold" font-size="16">CAR WASH</text>
+            <text x="100" y="142" text-anchor="middle" fill="#00d2ff" font-family="Rajdhani" font-size="10" letter-spacing="2">AUTO DETAILING</text>
+          </svg></div><div class="variant-name">1. Circular Badge</div>
+        </div>
+        <div class="variant-card"><div class="variant-preview">
+          <svg class="logo-svg" viewBox="0 0 200 100">
+            <path d="M20 45 Q70 25 150 45" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+            <path d="M165 35 Q172 50 172 58 A7 7 0 0 1 158 58 Q158 50 165 35" fill="#00d2ff"/>
+            <text x="100" y="70" text-anchor="middle" fill="#fff" font-family="Orbitron" font-weight="bold" font-size="16">CAR WASH</text>
+            <text x="100" y="85" text-anchor="middle" fill="#00d2ff" font-family="Rajdhani" font-size="9" letter-spacing="2">AUTO DETAILING</text>
+          </svg></div><div class="variant-name">2. Minimalist Wordmark</div>
+        </div>
+        <div class="variant-card"><div class="variant-preview">
+          <svg class="logo-svg" viewBox="0 0 200 200">
+            <path d="M100 20 L170 40 V110 C170 150 100 180 100 180 C100 180 30 150 30 110 V40 Z" fill="none" stroke="#ffb703" stroke-width="4"/>
+            <path d="M100 50 Q108 70 108 82 A8 8 0 0 1 92 82 Q92 70 100 50" fill="#00d2ff"/>
+            <text x="100" y="120" text-anchor="middle" fill="#ffb703" font-family="Orbitron" font-weight="bold" font-size="14">CAR WASH</text>
+            <text x="100" y="135" text-anchor="middle" fill="#fff" font-family="Rajdhani" font-size="9" letter-spacing="1">AUTO DETAILING</text>
+          </svg></div><div class="variant-name">3. Shield / Emblem</div>
+        </div>
+        <div class="variant-card"><div class="variant-preview">
+          <svg class="logo-svg" viewBox="0 0 200 120">
+            <path d="M100 15 L160 45 V55 L100 25 L40 55 V45 Z" fill="#0066ff"/>
+            <path d="M100 30 Q108 50 108 60 A8 8 0 0 1 92 60 Q92 50 100 30" fill="#00d2ff"/>
+            <text x="100" y="90" text-anchor="middle" fill="#fff" font-family="Orbitron" font-weight="bold" font-size="16">CAR WASH</text>
+            <text x="100" y="105" text-anchor="middle" fill="#00d2ff" font-family="Rajdhani" font-size="9" letter-spacing="2">AUTO DETAILING</text>
+          </svg></div><div class="variant-name">4. Modern Geometric Icon</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API = "";
+
+    async function refreshDashboard() {
+      try {
+        const [stats, jobs] = await Promise.all([
+          fetch(`${API}/api/dashboard/stats`).then(r => r.json()),
+          fetch(`${API}/api/jobs?limit=20`).then(r => r.json()),
+        ]);
+
+        // Find an "active" job (in bay)
+        const active = jobs.find(j => ["RECEIVED","WASHING","QUALITY CHECK"].includes(j.status));
+        if (active) {
+          document.getElementById("bayVehicle").innerText = active.vehicle_model || active.plate_number;
+          document.getElementById("bayService").innerText = active.service_name;
+          document.getElementById("bayJobCode").innerText = active.job_code;
+          document.getElementById("bayVehicleInfo").innerText = `${active.plate_number} — ${active.vehicle_model || ''}`;
+          document.getElementById("bayServiceInfo").innerText = active.service_name;
+          document.getElementById("bayStatus").innerText = active.status;
+        } else {
+          document.getElementById("bayVehicle").innerText = "No vehicle in bay";
+          document.getElementById("bayService").innerText = "—";
+          document.getElementById("bayJobCode").innerText = "—";
+          document.getElementById("bayVehicleInfo").innerText = "—";
+          document.getElementById("bayServiceInfo").innerText = "—";
+          document.getElementById("bayStatus").innerText = "Idle";
+        }
+      } catch (e) {
+        console.error("Dashboard refresh error:", e);
+      }
+    }
+
+    refreshDashboard();
+    setInterval(refreshDashboard, 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VenueBox CW - Job Tracker & POS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans p-4 md:p-6">
+<div class="max-w-7xl mx-auto space-y-6">
+  <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl gap-4">
+    <div class="flex items-center space-x-4">
+      <div class="bg-sky-500 text-slate-950 font-black px-4 py-3 rounded-xl text-xl tracking-widest">VBCW</div>
+      <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-400">VenueBox CW</h1>
+        <p class="text-slate-400 text-sm">Car Wash Job Tracker & Billing System</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full md:w-auto">
+      <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-700 text-center">
+        <span class="text-xs text-slate-400 block">In Bay</span>
+        <span id="statInBay" class="text-lg font-bold text-sky-400">0</span>
+      </div>
+      <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-700 text-center">
+        <span class="text-xs text-slate-400 block">Ready</span>
+        <span id="statReady" class="text-lg font-bold text-amber-400">0</span>
+      </div>
+      <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-700 text-center">
+        <span class="text-xs text-slate-400 block">Completed</span>
+        <span id="statCompleted" class="text-lg font-bold text-emerald-400">0</span>
+      </div>
+      <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-700 text-center">
+        <span class="text-xs text-slate-400 block">Today's Revenue</span>
+        <span id="statRevenue" class="text-lg font-bold text-emerald-400">KSh 0</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-4">
+      <h2 class="text-lg font-bold">Vehicle Intake & Job Creation</h2>
+      <form id="vehicleForm" class="space-y-4 text-sm">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 mb-1">Customer Name</label>
+            <input type="text" id="custName" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 mb-1">Phone</label>
+            <input type="tel" id="custPhone" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 mb-1">Reg No.</label>
+            <input type="text" id="regNum" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white uppercase font-bold">
+          </div>
+          <div>
+            <label class="block text-slate-300 mb-1">Make / Model</label>
+            <input type="text" id="makeModel" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 mb-1">Service</label>
+            <select id="serviceSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+              <option value="Body Wash" data-price="500">Body Wash (KSh 500)</option>
+              <option value="Full Wash + Interior" data-price="1500">Full Wash + Interior (KSh 1,500)</option>
+              <option value="Underwash & Engine" data-price="2000">Underwash & Engine (KSh 2,000)</option>
+              <option value="Executive Buff & Detail" data-price="4500">Executive Detail (KSh 4,500)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 mb-1">Operator</label>
+            <select id="operatorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+              <option>John</option><option>Peter</option><option>Alex</option><option>Grace</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-slate-950 font-extrabold py-3 rounded-xl">Create Job & Issue Voucher</button>
+      </form>
+    </section>
+
+    <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
+      <div>
+        <h2 class="text-lg font-bold border-b border-slate-700 pb-3">Digital Receipt & Verification QR</h2>
+        <div id="receiptPlaceholder" class="text-center py-20 text-slate-500 text-sm">Submit an intake job to view and generate printable receipts with dynamic QR code tracking.</div>
+        <div id="receiptContainer" class="mt-4 bg-slate-950 border border-slate-700 p-5 rounded-xl space-y-4 hidden">
+          <div class="text-center border-b border-slate-800 pb-3">
+            <span class="text-xs font-bold text-sky-400 tracking-widest uppercase">VenueBox CW Receipt</span>
+            <div id="recJobCode" class="text-2xl font-mono font-black text-white mt-1">---</div>
+          </div>
+          <div class="flex justify-center p-3 bg-white rounded-lg w-max mx-auto"><div id="qrcode"></div></div>
+          <div class="space-y-1.5 text-xs text-slate-300 bg-slate-900 p-3 rounded-lg border border-slate-800">
+            <div class="flex justify-between"><span class="text-slate-500">Customer:</span> <span id="recCust" class="font-semibold text-white"></span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Vehicle:</span> <span id="recVehicle" class="font-bold text-sky-300"></span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Service:</span> <span id="recService"></span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Staff Assigned:</span> <span id="recStaff"></span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Time In:</span> <span id="recTime"></span></div>
+            <div class="flex justify-between border-t border-slate-800 pt-1.5"><span class="text-slate-400">Total Price:</span> <span id="recPrice" class="text-emerald-400 font-bold text-sm"></span></div>
+          </div>
+        </div>
+      </div>
+      <button id="printBtn" onclick="window.print()" class="hidden w-full mt-4 bg-slate-700 hover:bg-slate-600 text-slate-100 font-medium py-2.5 rounded-xl text-sm">Print Receipt & Code</button>
+    </section>
+
+    <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-4">
+      <h2 class="text-lg font-bold border-b border-slate-700 pb-3">Live Status Tracker</h2>
+      <div id="statusList" class="space-y-3 overflow-y-auto max-h-[500px] pr-1">
+        <p class="text-slate-500 text-sm text-center py-12">No active jobs in pipeline.</p>
+      </div>
+    </section>
+
+    <section class="lg:col-span-3 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-700 pb-3 gap-2">
+        <h2 class="text-lg font-bold">Owner Audit Log & History</h2>
+        <input type="text" id="searchLog" onkeyup="filterLog()" placeholder="Search by plate or phone..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white w-full sm:w-64">
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-300">
+          <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
+            <tr>
+              <th class="p-3 rounded-l-lg">Job Code</th>
+              <th class="p-3">Customer</th>
+              <th class="p-3">Plate / Vehicle</th>
+              <th class="p-3">Service</th>
+              <th class="p-3">Operator</th>
+              <th class="p-3">Price</th>
+              <th class="p-3 rounded-r-lg">Status</th>
+            </tr>
+          </thead>
+          <tbody id="historyTable" class="divide-y divide-slate-700">
+            <tr><td colspan="7" class="text-center py-6 text-slate-500">No registered jobs logged.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const API = "";
+let allJobs = [];
+
+function badge(s) {
+  const map = {
+    'RECEIVED': 'bg-slate-800 text-slate-300 border border-slate-600',
+    'WASHING': 'bg-sky-950 text-sky-300 border border-sky-800',
+    'QUALITY CHECK': 'bg-indigo-950 text-indigo-300 border border-indigo-800',
+    'READY': 'bg-amber-950 text-amber-300 border border-amber-800',
+    'PAID': 'bg-emerald-950 text-emerald-300 border border-emerald-800',
+    'COLLECTED': 'bg-slate-950 text-slate-500 border border-slate-800',
+  };
+  return map[s] || 'bg-slate-800 text-slate-300';
+}
+
+async function loadAll() {
+  const stats = await fetch(`${API}/api/dashboard/stats`).then(r => r.json());
+  document.getElementById("statInBay").textContent = stats.in_bay;
+  document.getElementById("statReady").textContent = stats.ready;
+  document.getElementById("statCompleted").textContent = stats.completed;
+  document.getElementById("statRevenue").textContent = `KSh ${Number(stats.total_revenue).toLocaleString()}`;
+
+  allJobs = await fetch(`${API}/api/jobs?limit=200`).then(r => r.json());
+  renderTracker();
+  renderHistory(allJobs);
+}
+
+function renderTracker() {
+  const statusList = document.getElementById("statusList");
+  const active = allJobs.filter(j => j.status !== "COLLECTED");
+  if (!active.length) {
+    statusList.innerHTML = '<p class="text-slate-500 text-sm text-center py-12">No active jobs in pipeline.</p>';
+    return;
+  }
+  statusList.innerHTML = active.map(j => `
+    <div class="bg-slate-900 border border-slate-700 p-3.5 rounded-xl space-y-2">
+      <div class="flex justify-between items-start">
+        <div>
+          <span class="text-xs font-mono text-sky-400 block">${j.job_code}</span>
+          <span class="font-bold text-white text-base">${j.plate_number}</span>
+          <span class="text-xs text-slate-400 block">${j.vehicle_model || ''}</span>
+        </div>
+        <span class="text-xs font-bold px-2.5 py-1 rounded-full ${badge(j.status)}">${j.status}</span>
+      </div>
+      <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-xs">
+        <span class="text-slate-400">Op: <strong class="text-slate-200">${j.operator || '-'}</strong></span>
+        <button onclick="advance('${j.job_code}')" class="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 px-2.5 py-1 rounded-lg font-medium">Next Status &rarr;</button>
+      </div>
+    </div>`).join("");
+}
+
+function renderHistory(data) {
+  const tbody = document.getElementById("historyTable");
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-500">No registered jobs found.</td></tr>'; return; }
+  tbody.innerHTML = data.map(j => `
+    <tr class="hover:bg-slate-750">
+      <td class="p-3 font-mono text-sky-400 font-medium">${j.job_code}</td>
+      <td class="p-3">${j.customer_name}<br><span class="text-xs text-slate-500">${j.customer_phone}</span></td>
+      <td class="p-3 font-bold text-white">${j.plate_number} <span class="text-xs text-slate-400 block font-normal">${j.vehicle_model || ''}</span></td>
+      <td class="p-3">${j.service_name}</td>
+      <td class="p-3">${j.operator || '-'}</td>
+      <td class="p-3 font-semibold text-emerald-400">KSh ${Number(j.price).toLocaleString()}</td>
+      <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badge(j.status)}">${j.status}</span></td>
+    </tr>`).join("");
+}
+
+async function advance(code) {
+  await fetch(`${API}/api/jobs/${code}/advance`, { method: "POST" });
+  loadAll();
+}
+
+function filterLog() {
+  const q = document.getElementById("searchLog").value.toLowerCase();
+  renderHistory(allJobs.filter(j =>
+    j.plate_number.toLowerCase().includes(q) ||
+    j.customer_phone.toLowerCase().includes(q) ||
+    j.job_code.toLowerCase().includes(q)));
+}
+
+document.getElementById("vehicleForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const sel = document.getElementById("serviceSelect");
+  const opt = sel.options[sel.selectedIndex];
+  const payload = {
+    customer_name: document.getElementById("custName").value,
+    customer_phone: document.getElementById("custPhone").value,
+    plate_number: document.getElementById("regNum").value.trim().toUpperCase(),
+    vehicle_model: document.getElementById("makeModel").value,
+    service_name: opt.value,
+    price: parseFloat(opt.getAttribute("data-price")),
+    operator: document.getElementById("operatorSelect").value,
+    payment_status: "Pending",
+  };
+  const job = await fetch(`${API}/api/jobs?prefix=VBCW`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload),
+  }).then(r => r.json());
+
+  document.getElementById("receiptPlaceholder").classList.add("hidden");
+  document.getElementById("receiptContainer").classList.remove("hidden");
+  document.getElementById("printBtn").classList.remove("hidden");
+  document.getElementById("recJobCode").textContent = job.job_code;
+  document.getElementById("recCust").textContent = `${job.customer_name} (${job.customer_phone})`;
+  document.getElementById("recVehicle").textContent = `${job.plate_number} - ${job.vehicle_model || ''}`;
+  document.getElementById("recService").textContent = job.service_name;
+  document.getElementById("recStaff").textContent = job.operator || '-';
+  document.getElementById("recTime").textContent = new Date(job.time_in).toLocaleTimeString();
+  document.getElementById("recPrice").textContent = `KSh ${Number(job.price).toLocaleString()}`;
+
+  const qrContainer = document.getElementById("qrcode");
+  qrContainer.innerHTML = '';
+  new QRCode(qrContainer, {
+    text: `https://venuebox.cw/verify?job=${job.job_code}&plate=${job.plate_number}`,
+    width: 100, height: 100,
+    colorDark: "#0f172a", colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  this.reset();
+  loadAll();
+});
+
+loadAll();
+setInterval(loadAll, 8000);
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: carwash-backend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DB_HOST
+        fromService:
+          name: carwash-mariadb
+          type: pserv
+          property: host
+      - key: DB_PORT
+        value: 3306
+      - key: DB_USER
+        value: carwash_user
+      - key: DB_PASSWORD
+        generateValue: true
+      - key: DB_NAME
+        value: carwash_db
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  - type: pserv
+    name: carwash-mariadb
+    runtime: docker
+    plan: free
+    dockerImage: mariadb:11
+    disk:
+      name: mariadb-data
+      mountPath: /var/lib/mysql
+      sizeGB: 1
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
+      - key: MYSQL_DATABASE
+        value: carwash_db
+      - key: MYSQL_USER
+        value: carwash_user
+      - key: MYSQL_PASSWORD
+        fromService:
+          name: carwash-backend
+          type: web
+          envVarKey: DB_PASSWORD
