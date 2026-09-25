@@ -26,7 +26,6 @@ services:
     name: carwash-mariadb
     runtime: docker
     plan: free
-    dockerImage: mariadb:11
     disk:
       name: mariadb-data
       mountPath: /var/lib/mysql
